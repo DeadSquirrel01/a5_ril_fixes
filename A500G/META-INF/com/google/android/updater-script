@@ -1,0 +1,17 @@
+ui_print("RIL Fix for SM-A500G");
+ui_print("Copying RIL blobs...");
+ifelse(is_mounted("/system"), unmount("/system"));
+mount("ext4", "EMMC", "/dev/block/bootdevice/by-name/system", "/system");
+package_extract_file("system/lib/libsec-ril.so", "/system/lib/libsec-ril.so");
+package_extract_file("system/lib/libsec-ril-dsds.so", "/system/lib/libsec-ril-dsds.so");
+run_program("/sbin/busybox", "chmod", "0644", "/system/lib/libsec-ril.so");
+run_program("/sbin/busybox", "chmod", "0644", "/system/lib/libsec-ril-dsds.so");
+ui_print("Changing build.prop device-specific values according to SM-A500G ones");
+package_extract_file("build_prop_sed.sh", "/tmp/build_prop_sed.sh");
+run_program("/sbin/busybox", "chmod", "+x", "/tmp/build_prop_sed.sh");
+run_program("/tmp/build_prop_sed.sh");
+delete("/tmp/build_prop_sed.sh");
+ui_print("Unmounting system...");
+unmount("/system");
+ui_print("Done! Now RIL will magically work");
+
